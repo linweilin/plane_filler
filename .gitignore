@@ -1,0 +1,4 @@
+build/*
+lib/*
+data/*
+compile_commands.json

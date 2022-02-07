@@ -134,21 +134,23 @@ bool PlaneFiller::extractPlane()
 std::vector<Eigen::Vector3f> PlaneFiller::generatePointsOnPlane()
 {
     LOG(INFO) << "generating points on plane...";
-    plane_.resolution_ = downsampling_.voxel_size_(0) / 2.0;        // Make sure to have enough points in each voxel
+    // plane_.resolution_ = downsampling_.voxel_size_(0) / 2.0;        // Make sure to have enough points in each voxel
+    plane_.resolution_ = 0.06;        // Make sure to have enough points in each voxel
     auto plane_row = (plane_.max_bound_(1) - plane_.min_bound_(1)) / plane_.resolution_ + 1;
     auto plane_column = (plane_.max_bound_(0) - plane_.min_bound_(0)) / plane_.resolution_ + 1;
-    std::vector<Eigen::Vector3f> temp_pionts (plane_row * plane_column, Eigen::Vector3f(0., 0., plane_.height_));
-    for(decltype(temp_pionts.size()) row = 0; row < plane_row; ++row) {
+    std::vector<Eigen::Vector3f> temp_points (plane_row * plane_column, Eigen::Vector3f(0., 0., plane_.height_));
+    for(decltype(temp_points.size()) row = 0; row < plane_row; ++row) {
         
-        for(decltype(temp_pionts.size()) col = 0; col < plane_column; ++col) {
+        for(decltype(temp_points.size()) col = 0; col < plane_column; ++col) {
                 
-            temp_pionts.at(row * plane_column + col)(0) = plane_.min_bound_(0) + plane_.resolution_ * col;
-            temp_pionts.at(row * plane_column + col)(1) = plane_.min_bound_(1) + plane_.resolution_ * row;
+            auto point_column  = plane_.min_bound_(0) + plane_.resolution_ * col;
+            auto point_row  = plane_.min_bound_(1) + plane_.resolution_ * row;
+            temp_points.push_back(Eigen::Vector3f(point_column, point_row, plane_.height_));
         }
     }
 
-    LOG(INFO) << "Points on plane generated, size = " << temp_pionts.size();
-    return temp_pionts;
+    LOG(INFO) << "Points on plane generated, size = " << temp_points.size();
+    return temp_points;
 }
 
 void PlaneFiller::set_input_cloud(PointCloudPtr input_cloud)
